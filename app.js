@@ -4,7 +4,6 @@ const state = {
   currentYear: new Date().getFullYear(),
   selectedDate: null,
   activeView: 'calendarView',
-  projects: [{ id: 'p1', name: 'Proyecto Byte Valerita' }],
   users: [
     { username: 'admin', password: 'admin123', role: 'admin', name: 'Valerita' },
     { username: 'sofia', password: '1234', role: 'usuario', name: 'Sofía' },
@@ -14,7 +13,6 @@ const state = {
   events: [
     {
       id: 'e1',
-      projectId: 'p1',
       date: isoDateOffset(1),
       type: 'persona',
       owner: 'Sofía',
