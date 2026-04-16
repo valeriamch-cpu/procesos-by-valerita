@@ -42,8 +42,12 @@ const state = {
 };
 
 const STORAGE_KEY = 'proyectos_by_valerita_state_v1';
+const SUPABASE_URL = 'https://ktnooagfdmkuiaqdcxby.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0bm9vYWdmZG1rdWlhcWRjeGJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTM4MDYsImV4cCI6MjA5MTkyOTgwNn0.g8pgAIdVN2sePzEoWjH8x447mtF-mOu3in1dh-bt1RM';
+const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY) || null;
 hydrateFromStorage();
 ensureProjects();
+syncFromCloud();
 
 const loginSection = document.getElementById('loginSection');
 const dashboardSection = document.getElementById('dashboardSection');
@@ -446,6 +450,7 @@ function persistState() {
     messages: state.messages
   };
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  syncToCloud(data);
 }
 
 function hydrateFromStorage() {
@@ -461,6 +466,38 @@ function hydrateFromStorage() {
   } catch (error) {
     console.warn('No se pudo leer estado guardado.', error);
   }
+}
+
+async function syncFromCloud() {
+  if (!supabaseClient) return;
+
+  const { data, error } = await supabaseClient
+    .from('app_state')
+    .select('payload')
+    .eq('id', 'shared')
+    .maybeSingle();
+
+  if (error || !data?.payload) return;
+
+  const payload = data.payload;
+  if (Array.isArray(payload.projects)) state.projects = payload.projects;
+  if (Array.isArray(payload.events)) state.events = payload.events;
+  if (Array.isArray(payload.notifications)) state.notifications = payload.notifications;
+  if (Array.isArray(payload.messages)) state.messages = payload.messages;
+
+  ensureProjects();
+  renderAll();
+}
+
+let syncTimer = null;
+function syncToCloud(data) {
+  if (!supabaseClient) return;
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(async () => {
+    await supabaseClient
+      .from('app_state')
+      .upsert({ id: 'shared', payload: data, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+  }, 300);
 }
 
 function toIso(year, monthIndex, day) {
