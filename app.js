@@ -65,6 +65,8 @@ const welcomeTextEl = document.getElementById('welcomeText');
 const projectForm = document.getElementById('projectForm');
 const taskForm = document.getElementById('taskForm');
 const taskProjectEl = document.getElementById('taskProject');
+const searchPersonEl = document.getElementById('searchPerson');
+const searchProjectEl = document.getElementById('searchProject');
 const tabButtons = [...document.querySelectorAll('.tab')];
 const viewSections = [...document.querySelectorAll('.view')];
 
@@ -191,6 +193,10 @@ chatForm.addEventListener('submit', (event) => {
   persistState();
 });
 
+[searchPersonEl, searchProjectEl].forEach((input) => {
+  input?.addEventListener('input', () => renderTasks());
+});
+
 function renderAll() {
   ensureProjects();
   renderViews();
@@ -287,7 +293,17 @@ function renderEventDetails() {
 
 function renderTasks() {
   tasksListEl.innerHTML = '';
-  state.events.forEach((eventItem) => tasksListEl.appendChild(buildEventCard(eventItem)));
+  const personQuery = (searchPersonEl?.value || '').trim().toLowerCase();
+  const projectQuery = (searchProjectEl?.value || '').trim().toLowerCase();
+
+  state.events
+    .filter((eventItem) => {
+      const matchesPerson = !personQuery || (eventItem.owner || '').toLowerCase().includes(personQuery);
+      const projectName = projectNameById(eventItem.projectId).toLowerCase();
+      const matchesProject = !projectQuery || projectName.includes(projectQuery);
+      return matchesPerson && matchesProject;
+    })
+    .forEach((eventItem) => tasksListEl.appendChild(buildEventCard(eventItem)));
 }
 
 function buildEventCard(eventItem) {
