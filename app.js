@@ -22,21 +22,13 @@ const state = {
     },
     {
       id: 'e2',
+      projectId: 'p1',
       date: isoDateOffset(2),
       type: 'equipo',
       owner: 'Equipo Byte',
       title: 'Sprint planning',
       description: 'Planificación semanal con todo el equipo.',
       status: 'En proceso'
-    },
-    {
-      id: 'e3',
-      date: isoDateOffset(5),
-      type: 'equipo',
-      owner: 'Equipo Byte',
-      title: 'Entrega de módulo calendario',
-      description: 'Liberar versión inicial del calendario.',
-      status: 'Pendiente'
     }
   ],
   notifications: ['Bienvenida a Proyectos By Valerita.'],
@@ -56,6 +48,9 @@ const chatMessagesEl = document.getElementById('chatMessages');
 const chatForm = document.getElementById('chatForm');
 const tasksListEl = document.getElementById('tasksList');
 const welcomeTextEl = document.getElementById('welcomeText');
+const projectForm = document.getElementById('projectForm');
+const taskForm = document.getElementById('taskForm');
+const taskProjectEl = document.getElementById('taskProject');
 const tabButtons = [...document.querySelectorAll('.tab')];
 const viewSections = [...document.querySelectorAll('.view')];
 
@@ -110,6 +105,46 @@ loginForm.addEventListener('submit', (event) => {
   renderAll();
 });
 
+projectForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const input = document.getElementById('projectName');
+  const name = input.value.trim();
+  if (!name) return;
+
+  state.projects.push({ id: `p${Date.now()}`, name });
+  input.value = '';
+  addNotification(`Nuevo proyecto creado: ${name}.`);
+  renderProjectOptions();
+  renderNotifications();
+});
+
+taskForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const task = {
+    id: `e${Date.now()}`,
+    projectId: document.getElementById('taskProject').value,
+    title: document.getElementById('taskTitle').value.trim(),
+    date: document.getElementById('taskDate').value,
+    type: document.getElementById('taskType').value,
+    owner: document.getElementById('taskOwner').value.trim(),
+    description: document.getElementById('taskDescription').value.trim(),
+    status: 'Pendiente'
+  };
+
+  if (!task.title || !task.date || !task.owner || !task.description || !task.projectId) {
+    window.alert('Completa todos los campos de la tarea.');
+    return;
+  }
+
+  state.events.push(task);
+  taskForm.reset();
+  taskProjectEl.value = state.projects[0]?.id || '';
+  addNotification(`Nueva tarea agregada: ${task.title}.`);
+  renderCalendar();
+  renderTasks();
+  renderNotifications();
+});
+
 chatForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if (!state.currentUser) return;
@@ -129,6 +164,7 @@ chatForm.addEventListener('submit', (event) => {
 
 function renderAll() {
   renderViews();
+  renderProjectOptions();
   renderCalendar();
   renderEventDetails();
   renderTasks();
@@ -137,20 +173,22 @@ function renderAll() {
 }
 
 function renderViews() {
-  tabButtons.forEach((button) => {
-    button.classList.toggle('active', button.dataset.view === state.activeView);
-  });
+  tabButtons.forEach((button) => button.classList.toggle('active', button.dataset.view === state.activeView));
+  viewSections.forEach((section) => section.classList.toggle('hidden', section.id !== state.activeView));
+}
 
-  viewSections.forEach((section) => {
-    section.classList.toggle('hidden', section.id !== state.activeView);
+function renderProjectOptions() {
+  taskProjectEl.innerHTML = '';
+  state.projects.forEach((project) => {
+    const option = document.createElement('option');
+    option.value = project.id;
+    option.textContent = project.name;
+    taskProjectEl.appendChild(option);
   });
 }
 
 function renderCalendar() {
-  const monthName = new Date(state.currentYear, state.currentMonth, 1).toLocaleString('es-AR', {
-    month: 'long',
-    year: 'numeric'
-  });
+  const monthName = new Date(state.currentYear, state.currentMonth, 1).toLocaleString('es-AR', { month: 'long', year: 'numeric' });
   monthTitle.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
   calendarEl.innerHTML = '';
@@ -163,7 +201,6 @@ function renderCalendar() {
 
   const firstDay = new Date(state.currentYear, state.currentMonth, 1).getDay();
   const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
-
   for (let i = 0; i < firstDay; i += 1) {
     const empty = document.createElement('div');
     empty.className = 'day';
@@ -171,11 +208,9 @@ function renderCalendar() {
   }
 
   const todayIso = new Date().toISOString().slice(0, 10);
-
   for (let day = 1; day <= daysInMonth; day += 1) {
     const iso = toIso(state.currentYear, state.currentMonth, day);
     const dayEvents = eventsByDate(iso);
-
     const el = document.createElement('button');
     el.type = 'button';
     el.className = 'day';
@@ -216,16 +251,12 @@ function renderEventDetails() {
   }
 
   eventDetailsEl.innerHTML = '';
-  dayEvents.forEach((eventItem) => {
-    eventDetailsEl.appendChild(buildEventCard(eventItem));
-  });
+  dayEvents.forEach((eventItem) => eventDetailsEl.appendChild(buildEventCard(eventItem)));
 }
 
 function renderTasks() {
   tasksListEl.innerHTML = '';
-  state.events.forEach((eventItem) => {
-    tasksListEl.appendChild(buildEventCard(eventItem));
-  });
+  state.events.forEach((eventItem) => tasksListEl.appendChild(buildEventCard(eventItem)));
 }
 
 function buildEventCard(eventItem) {
@@ -234,6 +265,7 @@ function buildEventCard(eventItem) {
   item.innerHTML = `
     <strong>${eventItem.title}</strong>
     <div>${formatDate(eventItem.date)} · ${eventItem.owner}</div>
+    <small>Proyecto: ${projectNameById(eventItem.projectId)}</small>
     <p>${eventItem.description}</p>
     <small>Tipo: ${eventItem.type === 'persona' ? 'Persona' : 'Equipo'}</small>
   `;
@@ -249,17 +281,33 @@ function buildEventCard(eventItem) {
 
   select.addEventListener('change', (changeEvent) => {
     eventItem.status = changeEvent.target.value;
-    if (eventItem.status === 'Completada' && state.currentUser) {
-      addNotification(`${state.currentUser.name} completó: ${eventItem.title}.`);
-    } else {
-      addNotification(`Estado actualizado: ${eventItem.title} → ${eventItem.status}.`);
-    }
+    addNotification(eventItem.status === 'Completada' && state.currentUser
+      ? `${state.currentUser.name} completó: ${eventItem.title}.`
+      : `Estado actualizado: ${eventItem.title} → ${eventItem.status}.`);
     renderNotifications();
     renderTasks();
     renderEventDetails();
   });
 
+  const actionRow = document.createElement('div');
+  actionRow.className = 'item-actions';
+
+  const editButton = document.createElement('button');
+  editButton.type = 'button';
+  editButton.className = 'btn-secondary';
+  editButton.textContent = 'Editar';
+  editButton.addEventListener('click', () => editTask(eventItem));
+
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.className = 'btn-danger';
+  deleteButton.textContent = 'Eliminar';
+  deleteButton.addEventListener('click', () => deleteTask(eventItem.id));
+
+  actionRow.appendChild(editButton);
+  actionRow.appendChild(deleteButton);
   item.appendChild(select);
+  item.appendChild(actionRow);
   return item;
 }
 
@@ -283,6 +331,10 @@ function renderChat() {
   chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
 }
 
+function projectNameById(projectId) {
+  return state.projects.find((project) => project.id === projectId)?.name || 'Sin proyecto';
+}
+
 function eventsByDate(isoDate) {
   return state.events.filter((eventItem) => eventItem.date === isoDate);
 }
@@ -291,17 +343,53 @@ function addNotification(message) {
   state.notifications.push(`${new Date().toLocaleString('es-AR')} · ${message}`);
 }
 
+function editTask(eventId) {
+  const task = state.events.find((item) => item.id === eventId.id || item.id === eventId);
+  if (!task) return;
+
+  const newTitle = window.prompt('Editar título', task.title);
+  if (!newTitle) return;
+  const newOwner = window.prompt('Editar responsable', task.owner);
+  if (!newOwner) return;
+  const newDate = window.prompt('Editar fecha (YYYY-MM-DD)', task.date);
+  if (!newDate) return;
+  const newDescription = window.prompt('Editar descripción', task.description);
+  if (!newDescription) return;
+
+  task.title = newTitle.trim();
+  task.owner = newOwner.trim();
+  task.date = newDate.trim();
+  task.description = newDescription.trim();
+
+  addNotification(`Tarea editada: ${task.title}.`);
+  renderCalendar();
+  renderTasks();
+  renderEventDetails();
+  renderNotifications();
+}
+
+function deleteTask(eventId) {
+  const task = state.events.find((item) => item.id === eventId);
+  if (!task) return;
+
+  const confirmed = window.confirm(`¿Eliminar tarea "${task.title}"?`);
+  if (!confirmed) return;
+
+  state.events = state.events.filter((item) => item.id !== eventId);
+  addNotification(`Tarea eliminada: ${task.title}.`);
+  renderCalendar();
+  renderTasks();
+  renderEventDetails();
+  renderNotifications();
+}
+
 function toIso(year, monthIndex, day) {
   return new Date(Date.UTC(year, monthIndex, day)).toISOString().slice(0, 10);
 }
 
 function formatDate(isoDate) {
   const [year, month, day] = isoDate.split('-').map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString('es-AR', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'long'
-  });
+  return new Date(year, month - 1, day).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'long' });
 }
 
 function isoDateOffset(days) {

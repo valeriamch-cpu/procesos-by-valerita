@@ -21,14 +21,8 @@
           <h2>Ingresar</h2>
           <p>Usa tu usuario y clave para entrar.</p>
           <form id="loginForm" class="form-grid">
-            <label>
-              Usuario
-              <input id="username" required autocomplete="username" />
-            </label>
-            <label>
-              Clave
-              <input id="password" type="password" required autocomplete="current-password" />
-            </label>
+            <label>Usuario<input id="username" required autocomplete="username" /></label>
+            <label>Clave<input id="password" type="password" required autocomplete="current-password" /></label>
             <button type="submit">Entrar</button>
           </form>
           <small class="helper">Demo admin: <code>admin / admin123</code></small>
@@ -68,7 +62,33 @@
 
           <section id="tasksView" class="view card hidden">
             <h2>Tareas y procesos</h2>
-            <p class="muted">Modifica estados rápidamente para todo el proyecto.</p>
+            <p class="muted">Ahora puedes crear proyectos y tareas nuevas.</p>
+
+            <div class="split-grid">
+              <form id="projectForm" class="card soft-card form-grid">
+                <h3>Nuevo proyecto</h3>
+                <label>Nombre del proyecto<input id="projectName" required /></label>
+                <button type="submit">Agregar proyecto</button>
+              </form>
+
+              <form id="taskForm" class="card soft-card form-grid">
+                <h3>Nueva tarea/proceso</h3>
+                <label>Proyecto<select id="taskProject" required></select></label>
+                <label>Título<input id="taskTitle" required /></label>
+                <label>Fecha<input id="taskDate" type="date" required /></label>
+                <label>Tipo
+                  <select id="taskType" required>
+                    <option value="persona">Persona</option>
+                    <option value="equipo">Equipo</option>
+                  </select>
+                </label>
+                <label>Responsable<input id="taskOwner" required /></label>
+                <label>Descripción<textarea id="taskDescription" rows="2" required></textarea></label>
+                <button type="submit">Agregar tarea</button>
+              </form>
+            </div>
+
+            <h3 class="sub-title">Listado</h3>
             <div id="tasksList" class="event-details"></div>
           </section>
 
