@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proyectos By Valerita</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="brand-header">
+        <div class="brand-logo" aria-hidden="true">✌️</div>
+        <div>
+          <h1>Proyectos By Valerita</h1>
+          <p>Gestión de proyectos, calendario y chat de equipo</p>
+        </div>
+      </header>
+
+      <main>
+        <section id="loginSection" class="card">
+          <h2>Ingresar</h2>
+          <p>Usa tu usuario y clave para entrar.</p>
+          <form id="loginForm" class="form-grid">
+            <label>
+              Usuario
+              <input id="username" required autocomplete="username" />
+            </label>
+            <label>
+              Clave
+              <input id="password" type="password" required autocomplete="current-password" />
+            </label>
+            <button type="submit">Entrar</button>
+          </form>
+          <small class="helper">Demo admin: <code>admin / admin123</code></small>
+        </section>
+
+        <section id="dashboardSection" class="hidden">
+          <div class="card dashboard-header">
+            <strong id="welcomeText"></strong>
+            <button id="logoutBtn" type="button" class="btn-secondary">Salir</button>
+          </div>
+
+          <nav class="tabs" aria-label="Navegación principal">
+            <button type="button" class="tab active" data-view="calendarView">Calendario</button>
+            <button type="button" class="tab" data-view="tasksView">Tareas y procesos</button>
+            <button type="button" class="tab" data-view="notificationsView">Notificaciones</button>
+            <button type="button" class="tab" data-view="chatView">Chat</button>
+          </nav>
+
+          <section id="calendarView" class="view card">
+            <div class="card-title-row">
+              <h2>Calendario</h2>
+              <div class="legend">
+                <span><i class="dot dot-persona"></i> Persona</span>
+                <span><i class="dot dot-equipo"></i> Equipo</span>
+              </div>
+            </div>
+            <div class="calendar-nav">
+              <button id="prevMonth" type="button">←</button>
+              <h3 id="monthTitle"></h3>
+              <button id="nextMonth" type="button">→</button>
+            </div>
+            <div id="calendar" class="calendar"></div>
+
+            <h3 class="sub-title">Detalle de fecha</h3>
+            <div id="eventDetails" class="event-details">Selecciona un día para ver detalle.</div>
+          </section>
+
+          <section id="tasksView" class="view card hidden">
+            <h2>Tareas y procesos</h2>
+            <p class="muted">Modifica estados rápidamente para todo el proyecto.</p>
+            <div id="tasksList" class="event-details"></div>
+          </section>
+
+          <section id="notificationsView" class="view card hidden">
+            <h2>Notificaciones</h2>
+            <ul id="notifications" class="list"></ul>
+          </section>
+
+          <section id="chatView" class="view card hidden">
+            <h2>Chat grupal del proyecto</h2>
+            <div id="chatMessages" class="chat-box"></div>
+            <form id="chatForm" class="chat-form">
+              <input id="chatInput" placeholder="Escribe un mensaje" required />
+              <button type="submit">Enviar</button>
+            </form>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
