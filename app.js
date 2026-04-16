@@ -10,7 +10,7 @@ users: [
   { username: 'valentina', password: '5678', role: 'usuario', name: 'Valentina' },
   { username: 'sandra', password: '9112', role: 'usuario', name: 'Sandra' }
 ],
-  ],
+  
   events: [
     {
       id: 'e1',
