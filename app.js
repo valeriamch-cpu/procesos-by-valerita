@@ -7,9 +7,9 @@ const state = {
   projects: [{ id: 'p1', name: 'Proyecto Byte Valerita' }],
   users: [
     { username: 'admin', password: 'admin123', role: 'admin', name: 'Valerita' },
-    { username: 'sofia', password: '1234', role: 'usuario', name: 'Sofía' },
-    { username: 'juan', password: '1234', role: 'usuario', name: 'Juan' },
-    { username: 'maria', password: '1234', role: 'usuario', name: 'María' }
+    { username: 'veronica', password: '1234', role: 'usuario', name: 'Veronica' },
+    { username: 'valentina', password: '5678', role: 'usuario', name: 'Valentina' },
+    { username: 'sandra', password: '9112', role: 'usuario', name: 'Sandra' }
   ],
   events: [
     {
