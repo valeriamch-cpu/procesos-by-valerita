@@ -1,0 +1,75 @@
+:root {
+  --purple-900: #3e196b;
+  --purple-700: #5e2ca5;
+  --purple-200: #eadbff;
+  --bg-soft: #fff;
+  --text: #1d1230;
+  --green-persona: #2e9e54;
+  --blue-equipo: #1e7be6;
+  --orange: #f7941d;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: var(--text); background: radial-gradient(circle at top right, var(--purple-200), #ffffff 70%); }
+.app-shell { max-width: 1120px; margin: 0 auto; padding: 16px; }
+.brand-header { display: flex; gap: 16px; align-items: center; margin-bottom: 20px; background: var(--bg-soft); border-radius: 16px; padding: 16px; border: 2px solid var(--purple-200); }
+.brand-logo { width: 72px; height: 72px; border-radius: 20px; background: var(--orange); display: grid; place-items: center; font-size: 38px; }
+h1, h2, h3 { margin: 0; }
+
+.card { background: white; border-radius: 16px; border: 1px solid #e9def7; padding: 16px; }
+.soft-card { background: #fcf9ff; }
+.dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.tab { background: #efe4ff; color: var(--purple-900); border: 1px solid #dbc8ff; }
+.tab.active { background: var(--purple-700); color: #fff; }
+
+.form-grid { margin-top: 10px; display: grid; gap: 10px; }
+label { display: grid; gap: 4px; font-weight: 600; }
+.inline-check { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+input, button, select, textarea { border: 1px solid #d7c4f5; border-radius: 10px; padding: 10px; font-size: 14px; font-family: inherit; }
+button { background: var(--purple-700); color: white; border: none; cursor: pointer; }
+button:hover { filter: brightness(1.08); }
+.btn-secondary { background: #ece2ff; color: var(--purple-900); border: 1px solid #dbc8ff; }
+.helper { display: inline-block; margin-top: 8px; }
+
+.split-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 12px 0; }
+.card-title-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.legend { display: flex; gap: 10px; font-size: 13px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 999px; margin-right: 4px; }
+.dot-persona { background: var(--green-persona); }
+.dot-equipo { background: var(--blue-equipo); }
+
+.calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.calendar { display: grid; grid-template-columns: repeat(7, minmax(34px, 1fr)); gap: 6px; }
+.day, .weekday { border: 1px solid #e8dcff; min-height: 44px; border-radius: 8px; padding: 5px; font-size: 12px; }
+.weekday { background: #f4ecff; font-weight: 700; text-align: center; }
+.day.has-persona { outline: 2px solid var(--green-persona); }
+.day.has-equipo { box-shadow: inset 0 0 0 2px var(--blue-equipo); }
+.day.today { border-color: var(--purple-700); }
+.day-number { font-weight: 700; }
+.event-chip { display: inline-block; margin-top: 4px; border-radius: 999px; padding: 1px 6px; font-size: 11px; color: white; }
+.event-chip.persona { background: var(--green-persona); }
+.event-chip.equipo { background: var(--blue-equipo); }
+.event-chip.mine { background: #2e9e54; }
+.event-chip.other { background: #7a3dc4; }
+
+.sub-title { margin-top: 16px; margin-bottom: 8px; }
+.muted { margin: 6px 0 12px; color: #5f4d79; }
+.event-details { display: grid; gap: 8px; }
+.detail-item { border: 1px solid #e3d3ff; border-radius: 10px; padding: 10px; }
+.detail-item.mine { border-color: #2e9e54; background: #f2fff6; }
+.detail-item.other { border-color: #7a3dc4; background: #f8f2ff; }
+.detail-item select { margin-top: 8px; width: 100%; }
+.item-actions { display: flex; gap: 8px; margin-top: 8px; }
+.btn-danger { background: #c73353; }
+.list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.list li { padding: 8px; border-radius: 8px; border: 1px solid #e4d5ff; background: #faf7ff; }
+
+.chat-box { border: 1px solid #e4d5ff; border-radius: 10px; min-height: 140px; max-height: 220px; overflow: auto; padding: 8px; display: grid; gap: 8px; }
+.msg { border-radius: 8px; padding: 8px; background: #f3ecff; font-size: 13px; }
+.msg strong { color: var(--purple-900); }
+.chat-form { margin-top: 8px; display: flex; gap: 8px; }
+.chat-form input { flex: 1; }
+
+.hidden { display: none; }
+@media (max-width: 600px) { .brand-header { flex-direction: column; align-items: flex-start; } }
