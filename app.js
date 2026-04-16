@@ -16,6 +16,7 @@ const state = {
       id: 'e1',
       projectId: 'p1',
       date: isoDateOffset(1),
+      repeatMonthly: false,
       type: 'persona',
       owner: 'Sofía',
       title: 'Revisión de diseño',
@@ -26,6 +27,7 @@ const state = {
       id: 'e2',
       projectId: 'p1',
       date: isoDateOffset(2),
+      repeatMonthly: false,
       type: 'equipo',
       owner: 'Equipo Byte',
       title: 'Sprint planning',
@@ -140,6 +142,7 @@ taskForm.addEventListener('submit', (event) => {
     projectId: selectedProject,
     title: document.getElementById('taskTitle').value.trim(),
     date: document.getElementById('taskDate').value,
+    repeatMonthly: document.getElementById('taskRepeatMonthly').checked,
     type: document.getElementById('taskType').value,
     owner: document.getElementById('taskOwner').value.trim(),
     description: document.getElementById('taskDescription').value.trim(),
@@ -285,6 +288,8 @@ function buildEventCard(eventItem) {
     <small>Proyecto: ${projectNameById(eventItem.projectId)}</small>
     <p>${eventItem.description}</p>
     <small>Tipo: ${eventItem.type === 'persona' ? 'Persona' : 'Equipo'}</small>
+    <br />
+    <small>Repetición: ${eventItem.repeatMonthly ? 'Mensual (mismo día)' : 'Sin repetición'}</small>
   `;
 
   const select = document.createElement('select');
@@ -362,7 +367,22 @@ function ensureProjects() {
 }
 
 function eventsByDate(isoDate) {
-  return state.events.filter((eventItem) => eventItem.date === isoDate);
+  return state.events.filter((eventItem) => {
+    if (eventItem.date === isoDate) {
+      return true;
+    }
+
+    if (!eventItem.repeatMonthly) {
+      return false;
+    }
+
+    const [eventYear, eventMonth, eventDay] = eventItem.date.split('-').map(Number);
+    const [targetYear, targetMonth, targetDay] = isoDate.split('-').map(Number);
+    const isSameDay = eventDay === targetDay;
+    const isSameOrFutureMonth = (targetYear > eventYear) || (targetYear === eventYear && targetMonth >= eventMonth);
+
+    return isSameDay && isSameOrFutureMonth;
+  });
 }
 
 function addNotification(message) {
