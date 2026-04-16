@@ -41,6 +41,8 @@ const state = {
   ]
 };
 
+const STORAGE_KEY = 'proyectos_by_valerita_state_v1';
+hydrateFromStorage();
 ensureProjects();
 
 const loginSection = document.getElementById('loginSection');
@@ -123,13 +125,14 @@ if (projectForm) {
     }
 
     const newProject = { id: `p${Date.now()}`, name };
-    state.projects.push(newProject);
-    input.value = '';
-    addNotification(`Nuevo proyecto creado: ${name}.`);
-    renderProjectOptions();
-    taskProjectEl.value = newProject.id;
-    renderNotifications();
-    window.alert(`Proyecto creado: ${name}`);
+  state.projects.push(newProject);
+  input.value = '';
+  addNotification(`Nuevo proyecto creado: ${name}.`);
+  renderProjectOptions();
+  taskProjectEl.value = newProject.id;
+  renderNotifications();
+  persistState();
+  window.alert(`Proyecto creado: ${name}`);
   });
 }
 
@@ -161,6 +164,7 @@ taskForm.addEventListener('submit', (event) => {
   renderCalendar();
   renderTasks();
   renderNotifications();
+  persistState();
 });
 
 chatForm.addEventListener('submit', (event) => {
@@ -178,6 +182,7 @@ chatForm.addEventListener('submit', (event) => {
   });
   input.value = '';
   renderChat();
+  persistState();
 });
 
 function renderAll() {
@@ -309,6 +314,7 @@ function buildEventCard(eventItem) {
     renderNotifications();
     renderTasks();
     renderEventDetails();
+    persistState();
   });
 
   const actionRow = document.createElement('div');
@@ -387,6 +393,7 @@ function eventsByDate(isoDate) {
 
 function addNotification(message) {
   state.notifications.push(`${new Date().toLocaleString('es-AR')} · ${message}`);
+  persistState();
 }
 
 function editTask(eventId) {
@@ -412,6 +419,7 @@ function editTask(eventId) {
   renderTasks();
   renderEventDetails();
   renderNotifications();
+  persistState();
 }
 
 function deleteTask(eventId) {
@@ -427,6 +435,32 @@ function deleteTask(eventId) {
   renderTasks();
   renderEventDetails();
   renderNotifications();
+  persistState();
+}
+
+function persistState() {
+  const data = {
+    projects: state.projects,
+    events: state.events,
+    notifications: state.notifications,
+    messages: state.messages
+  };
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function hydrateFromStorage() {
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed.projects)) state.projects = parsed.projects;
+    if (Array.isArray(parsed.events)) state.events = parsed.events;
+    if (Array.isArray(parsed.notifications)) state.notifications = parsed.notifications;
+    if (Array.isArray(parsed.messages)) state.messages = parsed.messages;
+  } catch (error) {
+    console.warn('No se pudo leer estado guardado.', error);
+  }
 }
 
 function toIso(year, monthIndex, day) {
