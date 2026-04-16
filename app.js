@@ -253,7 +253,7 @@ function renderCalendar() {
 
     dayEvents.slice(0, 2).forEach((e) => {
       const chip = document.createElement('span');
-      chip.className = `event-chip ${e.type}`;
+      chip.className = `event-chip ${isOwnedByCurrentUser(e) ? 'mine' : 'other'}`;
       chip.textContent = e.type;
       el.appendChild(chip);
     });
@@ -292,7 +292,7 @@ function renderTasks() {
 
 function buildEventCard(eventItem) {
   const item = document.createElement('article');
-  item.className = 'detail-item';
+  item.className = `detail-item ${isOwnedByCurrentUser(eventItem) ? 'mine' : 'other'}`;
   item.innerHTML = `
     <strong>${eventItem.title}</strong>
     <div>${formatDate(eventItem.date)} · ${eventItem.owner}</div>
@@ -395,6 +395,14 @@ function eventsByDate(isoDate) {
 
     return isSameDay && isSameOrFutureMonth;
   });
+}
+
+function isOwnedByCurrentUser(eventItem) {
+  if (!state.currentUser) return false;
+  const owner = (eventItem.owner || '').trim().toLowerCase();
+  const currentName = (state.currentUser.name || '').trim().toLowerCase();
+  const currentUsername = (state.currentUser.username || '').trim().toLowerCase();
+  return owner === currentName || owner === currentUsername;
 }
 
 function addNotification(message) {

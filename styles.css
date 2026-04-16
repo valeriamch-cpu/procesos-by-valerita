@@ -50,11 +50,15 @@ button:hover { filter: brightness(1.08); }
 .event-chip { display: inline-block; margin-top: 4px; border-radius: 999px; padding: 1px 6px; font-size: 11px; color: white; }
 .event-chip.persona { background: var(--green-persona); }
 .event-chip.equipo { background: var(--blue-equipo); }
+.event-chip.mine { background: #2e9e54; }
+.event-chip.other { background: #7a3dc4; }
 
 .sub-title { margin-top: 16px; margin-bottom: 8px; }
 .muted { margin: 6px 0 12px; color: #5f4d79; }
 .event-details { display: grid; gap: 8px; }
 .detail-item { border: 1px solid #e3d3ff; border-radius: 10px; padding: 10px; }
+.detail-item.mine { border-color: #2e9e54; background: #f2fff6; }
+.detail-item.other { border-color: #7a3dc4; background: #f8f2ff; }
 .detail-item select { margin-top: 8px; width: 100%; }
 .item-actions { display: flex; gap: 8px; margin-top: 8px; }
 .btn-danger { background: #c73353; }
