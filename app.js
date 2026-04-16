@@ -109,21 +109,27 @@ loginForm.addEventListener('submit', (event) => {
   renderAll();
 });
 
-projectForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-  ensureProjects();
-  const input = document.getElementById('projectName');
-  const name = input.value.trim();
-  if (!name) return;
+if (projectForm) {
+  projectForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    ensureProjects();
+    const input = projectForm.querySelector('#projectName, [name=\"projectName\"], input, textarea');
+    const name = input?.value?.trim() || '';
+    if (!name) {
+      window.alert('Escribe un nombre de proyecto antes de agregar.');
+      return;
+    }
 
-  const newProject = { id: `p${Date.now()}`, name };
-  state.projects.push(newProject);
-  input.value = '';
-  addNotification(`Nuevo proyecto creado: ${name}.`);
-  renderProjectOptions();
-  taskProjectEl.value = newProject.id;
-  renderNotifications();
-});
+    const newProject = { id: `p${Date.now()}`, name };
+    state.projects.push(newProject);
+    input.value = '';
+    addNotification(`Nuevo proyecto creado: ${name}.`);
+    renderProjectOptions();
+    taskProjectEl.value = newProject.id;
+    renderNotifications();
+    window.alert(`Proyecto creado: ${name}`);
+  });
+}
 
 taskForm.addEventListener('submit', (event) => {
   event.preventDefault();
