@@ -4,16 +4,17 @@ const state = {
   currentYear: new Date().getFullYear(),
   selectedDate: null,
   activeView: 'calendarView',
-users: [
-  { username: 'admin', password: 'admin123', role: 'admin', name: 'Valerita' },
-  { username: 'veronica', password: '1234', role: 'usuario', name: 'Veronica' },
-  { username: 'valentina', password: '5678', role: 'usuario', name: 'Valentina' },
-  { username: 'sandra', password: '9112', role: 'usuario', name: 'Sandra' }
-],
-  
+  projects: [{ id: 'p1', name: 'Proyecto Byte Valerita' }],
+  users: [
+    { username: 'admin', password: 'admin123', role: 'admin', name: 'Valerita' },
+    { username: 'sofia', password: '1234', role: 'usuario', name: 'Sofía' },
+    { username: 'juan', password: '1234', role: 'usuario', name: 'Juan' },
+    { username: 'maria', password: '1234', role: 'usuario', name: 'María' }
+  ],
   events: [
     {
       id: 'e1',
+      projectId: 'p1',
       date: isoDateOffset(1),
       type: 'persona',
       owner: 'Sofía',
@@ -37,6 +38,8 @@ users: [
     { user: 'Sistema', text: 'Chat del proyecto activado.', at: new Date().toLocaleString('es-AR') }
   ]
 };
+
+ensureProjects();
 
 const loginSection = document.getElementById('loginSection');
 const dashboardSection = document.getElementById('dashboardSection');
@@ -108,22 +111,27 @@ loginForm.addEventListener('submit', (event) => {
 
 projectForm.addEventListener('submit', (event) => {
   event.preventDefault();
+  ensureProjects();
   const input = document.getElementById('projectName');
   const name = input.value.trim();
   if (!name) return;
 
-  state.projects.push({ id: `p${Date.now()}`, name });
+  const newProject = { id: `p${Date.now()}`, name };
+  state.projects.push(newProject);
   input.value = '';
   addNotification(`Nuevo proyecto creado: ${name}.`);
   renderProjectOptions();
+  taskProjectEl.value = newProject.id;
   renderNotifications();
 });
 
 taskForm.addEventListener('submit', (event) => {
   event.preventDefault();
+  ensureProjects();
+  const selectedProject = document.getElementById('taskProject').value || state.projects[0]?.id || '';
   const task = {
     id: `e${Date.now()}`,
-    projectId: document.getElementById('taskProject').value,
+    projectId: selectedProject,
     title: document.getElementById('taskTitle').value.trim(),
     date: document.getElementById('taskDate').value,
     type: document.getElementById('taskType').value,
@@ -164,6 +172,7 @@ chatForm.addEventListener('submit', (event) => {
 });
 
 function renderAll() {
+  ensureProjects();
   renderViews();
   renderProjectOptions();
   renderCalendar();
@@ -179,6 +188,7 @@ function renderViews() {
 }
 
 function renderProjectOptions() {
+  ensureProjects();
   taskProjectEl.innerHTML = '';
   state.projects.forEach((project) => {
     const option = document.createElement('option');
@@ -334,6 +344,15 @@ function renderChat() {
 
 function projectNameById(projectId) {
   return state.projects.find((project) => project.id === projectId)?.name || 'Sin proyecto';
+}
+
+function ensureProjects() {
+  if (!Array.isArray(state.projects)) {
+    state.projects = [];
+  }
+  if (state.projects.length === 0) {
+    state.projects.push({ id: 'p1', name: 'Proyecto Byte Valerita' });
+  }
 }
 
 function eventsByDate(isoDate) {
