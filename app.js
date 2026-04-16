@@ -45,9 +45,11 @@ const STORAGE_KEY = 'proyectos_by_valerita_state_v1';
 const SUPABASE_URL = 'https://ktnooagfdmkuiaqdcxby.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0bm9vYWdmZG1rdWlhcWRjeGJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTM4MDYsImV4cCI6MjA5MTkyOTgwNn0.g8pgAIdVN2sePzEoWjH8x447mtF-mOu3in1dh-bt1RM';
 const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY) || null;
+let lastCloudUpdatedAt = null;
 hydrateFromStorage();
 ensureProjects();
 syncFromCloud();
+setInterval(syncFromCloud, 8000);
 
 const loginSection = document.getElementById('loginSection');
 const dashboardSection = document.getElementById('dashboardSection');
@@ -473,17 +475,24 @@ async function syncFromCloud() {
 
   const { data, error } = await supabaseClient
     .from('app_state')
-    .select('payload')
+    .select('payload, updated_at')
     .eq('id', 'shared')
     .maybeSingle();
 
-  if (error || !data?.payload) return;
+  if (error || !data?.payload) {
+    return;
+  }
+
+  if (data.updated_at && data.updated_at === lastCloudUpdatedAt) {
+    return;
+  }
 
   const payload = data.payload;
   if (Array.isArray(payload.projects)) state.projects = payload.projects;
   if (Array.isArray(payload.events)) state.events = payload.events;
   if (Array.isArray(payload.notifications)) state.notifications = payload.notifications;
   if (Array.isArray(payload.messages)) state.messages = payload.messages;
+  lastCloudUpdatedAt = data.updated_at || lastCloudUpdatedAt;
 
   ensureProjects();
   renderAll();
@@ -494,9 +503,12 @@ function syncToCloud(data) {
   if (!supabaseClient) return;
   if (syncTimer) clearTimeout(syncTimer);
   syncTimer = setTimeout(async () => {
-    await supabaseClient
+    const { error } = await supabaseClient
       .from('app_state')
       .upsert({ id: 'shared', payload: data, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    if (error) {
+      console.warn('Error sincronizando con Supabase:', error.message);
+    }
   }, 300);
 }
 
